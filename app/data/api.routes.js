@@ -16,5 +16,13 @@ module.exports = [
         middlewares: [
             imp("app/routes/api/register")
         ]
+    },
+    {
+        path: "/login",
+        method: "POST",
+        type: "hitpoint",
+        middlewares: [
+            imp("app/routes/api/login")
+        ]
     }
 ]
