@@ -42,8 +42,8 @@ module.exports = async (req, res, next) => {
 
         // if got error while validating
         if (data.error) {
-            // set the statusCode to 500
-            req.HANDLE_DATA.statusCode = 500;
+            // set the statusCode to 422
+            req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
                 status: "error",
                 statusCode: req.HANDLE_DATA.statusCode,
@@ -59,7 +59,7 @@ module.exports = async (req, res, next) => {
 
         // check if method is `auth` and there is "password" field in it
         if (data.method == "auth" && helperJs._.is.not(data.password)) {
-            req.HANDLE_DATA.statusCode = 500;
+            req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
                 status: "error",
                 statusCode: req.HANDLE_DATA.statusCode,
@@ -72,7 +72,7 @@ module.exports = async (req, res, next) => {
 
         // check if method is "NOT" `auth` and there is "authId" field in it
         if (data.method != "auth" && helperJs._.is.not(data.password)) {
-            req.HANDLE_DATA.statusCode = 500;
+            req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
                 status: "error",
                 statusCode: req.HANDLE_DATA.statusCode,
@@ -123,7 +123,7 @@ module.exports = async (req, res, next) => {
 
         req.HANDLE_DATA.statusCode = 201;
         req.HANDLE_DATA.data = {
-            status: "error",
+            status: "success",
             statusCode: req.HANDLE_DATA.statusCode,
             code: req.code.CREATED,
             message: `Successfuly Registered`,
