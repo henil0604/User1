@@ -6,10 +6,15 @@ const RouterManager = require("./app/middlewares/RouterManager")
 const PORT = env("PORT") || 4141;
 const path = require("path");
 const requestIp = require('request-ip');
+const useragent = require('express-useragent');
+const cookies = require("./app/helpers/cookies");
+
+cookies.init(app);
 
 // Initilizing MongoDb Connection
 require("./app/helpers/Initialize_MongoDb")()
 
+app.use(useragent.express())
 app.use(requestIp.mw())
 app.use(require("./app/middlewares/hit"));
 app.use(require("./app/middlewares/RequestParser"));
