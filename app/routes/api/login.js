@@ -9,17 +9,44 @@ const addLoginTrace = imp("app/helpers/LoginTrace/add");
 const sendEmail = imp("app/helpers/sendEmail");
 const getHTMLTemplate = imp("app/helpers/getHTMLTemplate");
 const getActiveLogins = imp("app/helpers/User/getActiveLogins");
+const ipInfo = imp("app/helpers/ipInfo");
+const cookies = imp("app/helpers/cookies");
 
 /* -------------------------------------------------------------------------- */
 // Handler that allows to send "Security Warning"s According to user's data ----
 /* -------------------------------------------------------------------------- */
 const sendWarningMail = async (req, $user) => {
+    const userLocationInfo = await ipInfo(req.clientIp);
 
     const data = {
         email: $user.email,
         username: $user.username,
         ip: req.clientIp,
-        loggedInAt: new Date()
+        loggedInAt: new Date(),
+        location: "Unknown",
+        device: "Unknown"
+    }
+
+    if (userLocationInfo != null && !userLocationInfo?.bogon && userLocationInfo.region && userLocationInfo.country && userLocationInfo.city) {
+        data.location = `${userLocationInfo.city}, ${userLocationInfo.region}, ${userLocationInfo.country}`
+    }
+
+
+    if (req.useragent != undefined && req.useragent.isDesktop != undefined && req.useragent.os != undefined && req.useragent.browser != undefined && req.useragent.isMobile != undefined) {
+        data.device = "";
+
+        if (req.useragent.isDesktop) {
+            data.device += `Desktop`
+        } else if (req.useragent.isMobile) {
+            data.device += `Mobile`
+        } else {
+            data.device += "Other"
+        }
+
+        data.device += ", ";
+
+        data.device += req.useragent.browser + ", ";
+        data.device += req.useragent.os;
     }
 
     const html = getHTMLTemplate("loginWarning", data);
@@ -32,6 +59,21 @@ const sendWarningMail = async (req, $user) => {
 
 }
 
+/* -------------------------------------------------------------------------- */
+// Handler that allows to set tokens as cookies for user
+/* -------------------------------------------------------------------------- */
+const setCookies = (res, tokens) => {
+
+    const data = {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        time: Date.now()
+    }
+
+    const cookieName = env("AUTHENTICATION_DATA_COOKIE_NAME") || "USER1AUTH"
+
+    return cookies.sign(res, cookieName, data)
+}
 
 /* -------------------------------------------------------------------------- */
 /* ------------------------------ Main Handler ------------------------------ */
@@ -194,8 +236,6 @@ module.exports = async (req, res, next) => {
 
         const activeLogins = await getActiveLogins($userData.userId);
 
-        console.log(activeLogins.length)
-
         if (activeLogins.length >= (parseInt(env("MAX_ACTIVE_LOGIN_LIMIT")) || 5)) {
             req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
@@ -229,6 +269,7 @@ module.exports = async (req, res, next) => {
         }
 
         sendWarningMail(req, $user)
+        setCookies(res, tokens);
 
         req.HANDLE_DATA.statusCode = 202;
         req.HANDLE_DATA.data = {
