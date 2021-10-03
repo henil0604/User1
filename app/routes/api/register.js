@@ -110,7 +110,7 @@ module.exports = async (req, res, next) => {
 
         const $user = await createUser(data);
 
-        if ($user.userId != data.userId) {
+        if ($user?.userId != data.userId) {
             req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
                 status: "error",
