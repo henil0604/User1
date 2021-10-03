@@ -71,7 +71,7 @@ module.exports = async (req, res, next) => {
         }
 
         // check if method is "NOT" `auth` and there is "authId" field in it
-        if (data.method != "auth" && helperJs._.is.not(data.password)) {
+        if (data.method != "auth" && helperJs._.is.not(data.authId)) {
             req.HANDLE_DATA.statusCode = 422;
             req.HANDLE_DATA.data = {
                 status: "error",
@@ -140,15 +140,20 @@ module.exports = async (req, res, next) => {
         }
 
     } catch (e) {
+
         // setting the statusCode to 500 - Internal Server Error
         req.HANDLE_DATA.statusCode = 500;
         // setting the response data
         req.HANDLE_DATA.data = {
             status: "error",
             statusCode: req.HANDLE_DATA.statusCode,
-            code: req.code.SOMETHING_WENT_WRONG,
-            message: e.message
+            code: req.code.SOMETHING_WENT_WRONG
         };
+
+        if (env("SERVER_MODE") == "dev") {
+            console.log(e)
+            req.HANDLE_DATA.data.message = e.message;
+        }
     }
 
     // calling the next handler - here it is responseHandler
