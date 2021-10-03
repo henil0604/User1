@@ -51,6 +51,10 @@ module.exports = async (data = {}) => {
         }
     }
 
+    if (info.response.indexOf("OK") > -1 && env("SERVER_MODE") == "dev") {
+        log(`Email Sent to {${mailOptions.to}}`, "success", "[MAILER]")
+    }
+
     return {
         status: "success",
         info
