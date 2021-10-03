@@ -171,18 +171,37 @@ module.exports = async (req, res, next) => {
 
 
         // check for password
-        const isPasswordMatched = await bcrypt.compare(data.password, $user.password)
+        if ($user.method == "auth") {
+            const isPasswordMatched = await bcrypt.compare(data.password, $user.password)
 
-        // if password is not matched,
-        if (!isPasswordMatched) {
-            req.HANDLE_DATA.statusCode = 422;
-            req.HANDLE_DATA.data = {
-                status: "error",
-                statusCode: req.HANDLE_DATA.statusCode,
-                code: req.code.INVALID_DATA,
-                message: `Incorrect Password`
+            // if password is not matched,
+            if (!isPasswordMatched) {
+                req.HANDLE_DATA.statusCode = 422;
+                req.HANDLE_DATA.data = {
+                    status: "error",
+                    statusCode: req.HANDLE_DATA.statusCode,
+                    code: req.code.INVALID_DATA,
+                    message: `Incorrect Password`
+                }
+                return next()
             }
-            return next()
+        }
+
+        // check for authId
+        if ($user.method != "auth") {
+            const isAuthIdMatched = await bcrypt.compare(data.authId, $user.authId)
+
+            // if authId is not matched,
+            if (!isAuthIdMatched) {
+                req.HANDLE_DATA.statusCode = 422;
+                req.HANDLE_DATA.data = {
+                    status: "error",
+                    statusCode: req.HANDLE_DATA.statusCode,
+                    code: req.code.INVALID_DATA,
+                    message: `Incorrect Auth Id`
+                }
+                return next()
+            }
         }
 
         const findUserData = {
@@ -242,7 +261,7 @@ module.exports = async (req, res, next) => {
                 status: "error",
                 statusCode: req.HANDLE_DATA.statusCode,
                 code: req.code.EXCEEDED,
-                message: `Login Limit exceedxed`
+                message: `Active Login Limit exceedxed`
             }
             return next()
         }
@@ -294,6 +313,7 @@ module.exports = async (req, res, next) => {
         };
 
         if (env("SERVER_MODE") == "dev") {
+            console.log(e)
             req.HANDLE_DATA.data.message = e.message;
         }
 
