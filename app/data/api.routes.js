@@ -24,5 +24,23 @@ module.exports = [
         middlewares: [
             imp("app/routes/api/login")
         ]
-    }
+    },
+    {
+        path: "/profile",
+        method: "POST",
+        type: "hitpoint",
+        middlewares: [
+            imp("app/middlewares/isAuthenticated"),
+            imp("app/routes/api/profile")
+        ]
+    },
+    {
+        path: "/logout",
+        method: "POST",
+        type: "hitpoint",
+        middlewares: [
+            imp("app/middlewares/isAuthenticated"),
+            imp("app/routes/api/logout")
+        ]
+    },
 ]
