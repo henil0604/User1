@@ -11,6 +11,8 @@ const getHTMLTemplate = imp("app/helpers/getHTMLTemplate");
 const getActiveLogins = imp("app/helpers/User/getActiveLogins");
 const ipInfo = imp("app/helpers/ipInfo");
 const cookies = imp("app/helpers/cookies");
+const isAuthenticated = imp("app/helpers/isAuthenticated");
+
 
 /* -------------------------------------------------------------------------- */
 // Handler that allows to send "Security Warning"s According to user's data ----
@@ -93,6 +95,21 @@ module.exports = async (req, res, next) => {
 
     // try catch block for handling errors
     try {
+
+        // checking if user is already loggedin
+        const authenticated = await isAuthenticated(req);
+
+        if (authenticated.refreshToken) {
+            req.HANDLE_DATA.statusCode = 403
+            req.HANDLE_DATA.data = {
+                status: "error",
+                statusCode: req.HANDLE_DATA.statusCode,
+                code: req.code.ALREADY_AUTHORIZED,
+                message: "You are already authorized"
+            }
+
+            return next();
+        }
 
         // Initilizing Data
         let data = req.body;
