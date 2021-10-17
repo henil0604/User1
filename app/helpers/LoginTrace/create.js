@@ -4,8 +4,10 @@ module.exports = async (userId) => {
 
     const trace = new $LoginTrace({
         userId,
-        traces: {}
+        traces: new Map()
     })
 
-    return trace.save();
+    saved = await trace.save();
+
+    return saved;
 }
