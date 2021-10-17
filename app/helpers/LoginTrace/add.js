@@ -12,14 +12,13 @@ module.exports = async (userId, trace) => {
 
     loginTrace.traces.set(trace.traceId, trace);
 
-    await $LoginTrace.findOneAndUpdate({
-        userId,
+    await $LoginTrace.findOneAndUpdate({ userId }, {
         $set: {
             traces: loginTrace.traces
         }
     })
 
-    return getLoginTrace({
+    return await getLoginTrace({
         userId
     })
 }
