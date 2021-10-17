@@ -278,7 +278,7 @@ module.exports = async (req, res, next) => {
                 status: "error",
                 statusCode: req.HANDLE_DATA.statusCode,
                 code: req.code.EXCEEDED,
-                message: `Active Login Limit exceedxed`
+                message: `Active Login Limit exceeded`
             }
             return next()
         }
