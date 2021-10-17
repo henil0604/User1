@@ -5,13 +5,15 @@ const LoginTraceSchema = new mongoose.Schema({
     userId: {
         type: String,
         required: true,
-        unique: true
     },
 
     traces: {
         type: Map,
         of: Object,
-        required: true
+        required: true,
+        default: () => {
+            return new Map()
+        }
     }
 
 })
