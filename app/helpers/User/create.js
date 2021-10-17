@@ -7,5 +7,5 @@ module.exports = async (data) => {
 
     await createLoginTrace(data.userId)
 
-    return $user.save();
+    return await $user.save();
 }
